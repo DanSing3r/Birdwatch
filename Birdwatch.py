@@ -6,6 +6,7 @@ import requests
 import json
 from datetime import datetime, timedelta
 import telegram_send
+import tweepy
 import time
 import os
 
@@ -37,6 +38,31 @@ def alert(birds):
     telegram_send.send(messages=messages)
 
     return
+
+def tweet(birds):
+
+    public = None
+
+    for bird in birds:
+        if bird['locationPrivate']:
+            public = False
+        else:
+            public = False
+
+    if public:
+        tweet = f'{bird["comName"]} at {bird["locName"]}'
+
+    elif private:
+        # tweet = f'{bird["comName"]} in {county}'
+        tweet = f'{bird["comName"]}'
+
+    client = tweepy.Client(consumer_key=keys.CONSUMER_KEY, consumer_secret=
+        keys.CONSUMER_SECRET, access_token=keys.ACCESS_TOKEN,
+        access_token_secret=keys.ACCESS_SECRET)
+
+    response = client.create_tweet(text=tweet)
+
+    return response
 
 def find_valids(response):
 
@@ -99,7 +125,7 @@ if __name__ == '__main__':
     tweeted = []
 
     for region in config.REGIONS:
-        response = get_notable(region, keys.TOKEN)
+        response = get_notable(region, keys.EBIRD_TOKEN)
         print(f'{timestamp()}: Got region {region}')
         print(response.content)
 
@@ -113,8 +139,12 @@ if __name__ == '__main__':
         print(f'Tweetable: {len(tweetable)}\n{tweetable}')
 
         alert(tweetable)
+        response = tweet(tweetable)
+        print(response)
         if tweetable:
             tweeted += tweetable
 
     recents = update_tweeted(tweeted, config.F_TWEETED)
     print(f'Recently tweeted: {len(recents)}\n{recents}')
+
+    tweet(tweeted)
