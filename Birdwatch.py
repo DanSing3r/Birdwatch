@@ -52,7 +52,7 @@ def tweet(birds):
     if public:
         tweet = f'{bird["comName"]} at {bird["locName"]}'
 
-    elif private:
+    elif not public:
         # tweet = f'{bird["comName"]} in {county}'
         tweet = f'{bird["comName"]}'
 
