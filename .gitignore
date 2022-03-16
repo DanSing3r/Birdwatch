@@ -4,5 +4,6 @@ __pychache__/
 *.log
 
 keys.py
-Images/
 tweeted.json
+Images/
+env/
