@@ -13,10 +13,10 @@ import os
 def timestamp():
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-def get_notable(region, api_token):
+def get_notable(region, timeframe=config.TIMEFRAME):
 
-    url = f'https://api.ebird.org/v2/data/obs/{region}/recent/notable?back={config.TIMEFRAME}'
-    headers = {'X-eBirdApiToken':api_token}
+    url = f'https://api.ebird.org/v2/data/obs/{region}/recent/notable?back={timeframe}'
+    headers = {'X-eBirdApiToken':keys.EBIRD_TOKEN}
 
     response = requests.request("GET", url, headers=headers)
 
@@ -39,7 +39,7 @@ def alert(birds):
 
     return
 
-def tweet(birds):
+def tweet(birds, interval=config.DELAY):
 
     client = tweepy.Client(consumer_key=keys.CONSUMER_KEY, consumer_secret=
         keys.CONSUMER_SECRET, access_token=keys.ACCESS_TOKEN,
@@ -63,7 +63,7 @@ def tweet(birds):
             responses.append((e, text))
             birds.remove(bird)
 
-            time.sleep(120)
+        time.sleep(interval)
 
     return birds, responses
 
@@ -89,7 +89,7 @@ def dedupe(observations):
 
     return uniques
 
-def remove_tweeted(observations, f):
+def remove_tweeted(observations, f=config.F_TWEETED):
 
     recents = []
 
@@ -104,7 +104,7 @@ def remove_tweeted(observations, f):
 
     return observations
 
-def update_tweeted(tweeted, f):
+def update_tweeted(tweeted, f=config.F_TWEETED):
 
     with open(f, 'r') as fh:
         old = json.load(fh)
@@ -128,7 +128,7 @@ if __name__ == '__main__':
     tweets = []
 
     for region in config.REGIONS:
-        response = get_notable(region, keys.EBIRD_TOKEN)
+        response = get_notable(region)
         print(f'{timestamp()}: Got region {region}')
         print(response.content)
 
@@ -138,7 +138,7 @@ if __name__ == '__main__':
         uniques = dedupe(valids)
         print(f'Uniques: {len(uniques)}\n{uniques}')
 
-        tweetable = remove_tweeted(uniques, config.F_TWEETED)
+        tweetable = remove_tweeted(uniques)
         print(f'Tweetable: {len(tweetable)}\n{tweetable}')
 
         alert(tweetable)
@@ -150,5 +150,5 @@ if __name__ == '__main__':
         tweeted, responses = tweet(tweets)
         print(responses)
 
-    recents = update_tweeted(tweeted, config.F_TWEETED)
+    recents = update_tweeted(tweeted)
     print(f'Recently tweeted: {len(recents)}\n{recents}')
