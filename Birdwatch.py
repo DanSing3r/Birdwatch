@@ -41,28 +41,31 @@ def alert(birds):
 
 def tweet(birds):
 
-    public = None
-
-    for bird in birds:
-        if bird['locationPrivate']:
-            public = False
-        else:
-            public = False
-
-    if public:
-        tweet = f'{bird["comName"]} at {bird["locName"]}'
-
-    elif not public:
-        # tweet = f'{bird["comName"]} in {county}'
-        tweet = f'{bird["comName"]}'
-
     client = tweepy.Client(consumer_key=keys.CONSUMER_KEY, consumer_secret=
         keys.CONSUMER_SECRET, access_token=keys.ACCESS_TOKEN,
         access_token_secret=keys.ACCESS_SECRET)
 
-    response = client.create_tweet(text=tweet)
+    responses = []
 
-    return response
+    for bird in birds:
+
+        if bird['locationPrivate']:
+            tweet = f'{bird["comName"]}'
+        elif not bird['locationPrivate']:
+            # Add logic to inclue county
+            tweet = f'{bird["comName"]} at {bird["locName"]}'
+
+        try:
+            response = client.create_tweet(text=tweet)
+            responses.append(response)
+
+        except Exception as e:
+            responses.append((e, text))
+            birds.remove(bird)
+
+            time.sleep(120)
+
+    return birds, responses
 
 def find_valids(response):
 
@@ -86,7 +89,7 @@ def dedupe(observations):
 
     return uniques
 
-def check_tweeted(observations, f):
+def remove_tweeted(observations, f):
 
     recents = []
 
@@ -122,7 +125,7 @@ if __name__ == '__main__':
     script_dir = os.path.dirname(os.path.realpath(__file__))
     os.chdir(script_dir)
 
-    tweeted = []
+    tweets = []
 
     for region in config.REGIONS:
         response = get_notable(region, keys.EBIRD_TOKEN)
@@ -135,16 +138,17 @@ if __name__ == '__main__':
         uniques = dedupe(valids)
         print(f'Uniques: {len(uniques)}\n{uniques}')
 
-        tweetable = check_tweeted(uniques, config.F_TWEETED)
+        tweetable = remove_tweeted(uniques, config.F_TWEETED)
         print(f'Tweetable: {len(tweetable)}\n{tweetable}')
 
         alert(tweetable)
-        response = tweet(tweetable)
-        print(response)
-        if tweetable:
-            tweeted += tweetable
+        tweets += tweetable
+
+    if tweets:
+        print(tweets)
+
+        tweeted, responses = tweet(tweets)
+        print(responses)
 
     recents = update_tweeted(tweeted, config.F_TWEETED)
     print(f'Recently tweeted: {len(recents)}\n{recents}')
-
-    tweet(tweeted)
