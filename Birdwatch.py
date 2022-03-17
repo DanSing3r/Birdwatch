@@ -150,5 +150,4 @@ if __name__ == '__main__':
         tweeted, responses = tweet(tweets)
         print(responses)
 
-    recents = update_tweeted(tweeted)
-    print(f'Recently tweeted: {len(recents)}\n{recents}')
+        update_tweeted(tweeted)
