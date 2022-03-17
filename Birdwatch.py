@@ -4,7 +4,6 @@ import config
 import keys
 import requests
 import json
-import csv
 from datetime import datetime, timedelta
 import telegram_send
 import tweepy
