@@ -4,6 +4,7 @@ import config
 import keys
 import requests
 import json
+import csv
 from datetime import datetime, timedelta
 import telegram_send
 import tweepy
@@ -49,18 +50,25 @@ def tweet(birds, interval=config.DELAY):
 
     for bird in birds:
 
+        if bird['howMany'] > 1:
+            group_detail = f'(group of {bird['howMany']})')
+
+        else:
+            group_detail = ''
+
         if bird['locationPrivate']:
-            tweet = f'{bird["comName"]}'
+            # Add county logic
+            tweet = f'{bird["comName"]} {group_detail}'
         elif not bird['locationPrivate']:
-            # Add logic to inclue county
-            tweet = f'{bird["comName"]} at {bird["locName"]}'
+            map = f'https://www.google.com/maps/search/?api=1&query={bird["lat"]}%2C{bird["lng"]}'
+            tweet = f'{bird["comName"]} {group_detail} spotted at {bird["locName"]} {map}'
 
         try:
             response = client.create_tweet(text=tweet)
             responses.append(response)
 
         except Exception as e:
-            responses.append((e, text))
+            responses.append((e, tweet))
             birds.remove(bird)
 
         time.sleep(interval)
@@ -120,6 +128,13 @@ def update_tweeted(tweeted, f=config.F_TWEETED):
         json.dump(new, fh)
 
     return new
+
+def get_image(bird):
+    pass
+
+def cleanup(loc_name):
+    pass
+
 
 if __name__ == '__main__':
     script_dir = os.path.dirname(os.path.realpath(__file__))
