@@ -1,5 +1,3 @@
-#!/usr/bin/env python3.9
-
 import config
 import keys
 import requests
@@ -50,17 +48,16 @@ def tweet(birds, interval=config.DELAY):
     for bird in birds:
 
         if bird['howMany'] > 1:
-            group_detail = f'(group of {bird["howMany"]})'
+            group_detail = f' (group of {bird["howMany"]})'
 
         else:
             group_detail = ''
 
         if bird['locationPrivate']:
-            # Add county logic
-            tweet = f'{bird["comName"]} {group_detail}'
+            tweet = f'{bird["comName"]}{group_detail} spotted in {bird["county"]} County'
         elif not bird['locationPrivate']:
             map = f'https://www.google.com/maps/search/?api=1&query={bird["lat"]}%2C{bird["lng"]}'
-            tweet = f'{bird["comName"]} {group_detail} spotted at {bird["locName"]} {map}'
+            tweet = f'{bird["comName"]}{group_detail} spotted at {bird["locName"]}, {bird["county"]} County {map}'
 
         try:
             response = client.create_tweet(text=tweet)
@@ -74,14 +71,14 @@ def tweet(birds, interval=config.DELAY):
 
     return birds, responses
 
-def find_valids(response):
+def load(response, county):
 
     observations = json.loads(response.content)
     valids = []
 
     for o in observations:
         if o['obsValid']:
-            valids.append(o)
+            valids.append(dict(o, county=county))
 
     return valids
 
@@ -142,11 +139,11 @@ if __name__ == '__main__':
     tweets = []
 
     for region in config.REGIONS:
-        response = get_notable(region)
+        response = get_notable(region[1])
         print(f'{timestamp()}: Got region {region}')
         print(response.content)
 
-        valids = find_valids(response)
+        valids = load(response, region[0])
         print(f'Valids: {len(valids)}\n{valids}')
 
         uniques = dedupe(valids)
