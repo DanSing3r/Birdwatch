@@ -50,7 +50,7 @@ def tweet(birds, interval=config.DELAY):
     for bird in birds:
 
         if bird['howMany'] > 1:
-            group_detail = f'(group of {bird["howMany"]})')
+            group_detail = f'(group of {bird["howMany"]})'
 
         else:
             group_detail = ''
