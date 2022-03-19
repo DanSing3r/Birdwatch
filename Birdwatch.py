@@ -57,7 +57,7 @@ def tweet(birds, interval=config.DELAY):
             tweet = f'{bird["comName"]}{group_detail} spotted in {bird["county"]} County'
         elif not bird['locationPrivate']:
             map = f'https://www.google.com/maps/search/?api=1&query={bird["lat"]}%2C{bird["lng"]}'
-            tweet = f'{bird["comName"]}{group_detail} spotted at {bird["locName"]}, {bird["county"]} County {map}'
+            tweet = f'{bird["comName"]}{group_detail} spotted at {cleanup(bird["locName"])}, {bird["county"]} County {map}'
 
         try:
             response = client.create_tweet(text=tweet)
@@ -129,8 +129,13 @@ def get_image(bird):
     pass
 
 def cleanup(loc_name):
-    pass
 
+    # Remove parentheticals
+    start = loc_name.index('(')
+    end = loc_name.index(')')
+    clean = loc_name[:start] + loc_name[end+2:]
+
+    return clean
 
 if __name__ == '__main__':
     script_dir = os.path.dirname(os.path.realpath(__file__))
