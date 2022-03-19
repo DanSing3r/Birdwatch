@@ -57,10 +57,10 @@ def tweet(birds, interval=config.DELAY):
             tweet = f'{bird["comName"]}{group_detail} spotted in {bird["county"]} County'
         elif not bird['locationPrivate']:
             map = f'https://www.google.com/maps/search/?api=1&query={bird["lat"]}%2C{bird["lng"]}'
-            tweet = f'{bird["comName"]}{group_detail} spotted at {cleanup(bird["locName"])}, {bird["county"]} County {map}'
+            tweet = f'{bird["comName"]}{group_detail} spotted at {["locName"]}, {bird["county"]} County {map}'
 
         try:
-            response = client.create_tweet(text=tweet)
+            response = client.create_tweet(text=cleanup(tweet))
             responses.append(response)
 
         except Exception as e:
@@ -128,12 +128,12 @@ def update_tweeted(tweeted, f=config.F_TWEETED):
 def get_image(bird):
     pass
 
-def cleanup(loc_name):
+def cleanup(string):
 
-    # Remove parentheticals
-    start = loc_name.index('(')
-    end = loc_name.index(')')
-    clean = loc_name[:start] + loc_name[end+2:]
+    # Remove parentheticals, double hyphens
+    start = string.index('(')
+    end = string.index(')')
+    clean = (string[:start] + string[end+2:]).replace('--', '-')
 
     return clean
 
