@@ -131,11 +131,15 @@ def get_image(bird):
 def cleanup(string):
 
     # Remove parentheticals, double hyphens
-    start = string.index('(')
-    end = string.index(')')
-    clean = (string[:start] + string[end+2:]).replace('--', '-')
+    if '(' in string:
+        start = string.index('(')
+        end = string.index(')')
+        string = (string[:start] + string[end+2:])
 
-    return clean
+    if '--' in string:
+        string.replace('--', '-')
+        
+    return string
 
 if __name__ == '__main__':
     script_dir = os.path.dirname(os.path.realpath(__file__))
