@@ -57,10 +57,10 @@ def tweet(birds, interval=config.DELAY):
             tweet = f'{bird["comName"]}{group_detail} spotted in {bird["county"]} County'
         elif not bird['locationPrivate']:
             map = f'https://www.google.com/maps/search/?api=1&query={bird["lat"]}%2C{bird["lng"]}'
-            tweet = f'{bird["comName"]}{group_detail} spotted at {bird["locName"]}, {bird["county"]} County {map}'
+            tweet = f'{bird["comName"]}{group_detail} spotted at {cleanup(bird["locName"])}, {bird["county"]} County {map}'
 
         try:
-            response = client.create_tweet(text=cleanup(tweet))
+            response = client.create_tweet(text=tweet)
             responses.append(response)
 
         except Exception as e:
@@ -134,40 +134,46 @@ def cleanup(string):
     if '(' in string:
         start = string.index('(')
         end = string.index(')')
-        string = (string[:start] + string[end+2:])
+        if end == len(string)-1:
+            string = string[:start-1]
+
+        else:
+            string = (string[:start] + string[end+2:])
 
     if '--' in string:
-        string.replace('--', '-')
+        string = string.replace('--', ' \u2014 ')
 
     return string
 
 if __name__ == '__main__':
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    os.chdir(script_dir)
+    # script_dir = os.path.dirname(os.path.realpath(__file__))
+    # os.chdir(script_dir)
+    #
+    # tweets = []
+    #
+    # for region in config.REGIONS:
+    #     response = get_notable(region[1])
+    #     print(f'{timestamp()}: Got region {region}')
+    #     print(response.content)
+    #
+    #     valids = load(response, region[0])
+    #     print(f'Valids: {len(valids)}\n{valids}')
+    #
+    #     uniques = dedupe(valids)
+    #     print(f'Uniques: {len(uniques)}\n{uniques}')
+    #
+    #     tweetable = remove_tweeted(uniques)
+    #     print(f'Tweetable: {len(tweetable)}\n{tweetable}')
+    #
+    #     alert(tweetable)
+    #     tweets += tweetable
+    #
+    # if tweets:
+    #     print(tweets)
+    #
+    #     tweeted, responses = tweet(tweets)
+    #     print(responses)
+    #
+    #     update_tweeted(tweeted)
 
-    tweets = []
-
-    for region in config.REGIONS:
-        response = get_notable(region[1])
-        print(f'{timestamp()}: Got region {region}')
-        print(response.content)
-
-        valids = load(response, region[0])
-        print(f'Valids: {len(valids)}\n{valids}')
-
-        uniques = dedupe(valids)
-        print(f'Uniques: {len(uniques)}\n{uniques}')
-
-        tweetable = remove_tweeted(uniques)
-        print(f'Tweetable: {len(tweetable)}\n{tweetable}')
-
-        alert(tweetable)
-        tweets += tweetable
-
-    if tweets:
-        print(tweets)
-
-        tweeted, responses = tweet(tweets)
-        print(responses)
-
-        update_tweeted(tweeted)
+    print(cleanup('Wild Turkey at Wolf Springs Road -- Dam area'))
