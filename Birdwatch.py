@@ -16,7 +16,7 @@ def get_notable(region, timeframe=config.TIMEFRAME):
     url = f'https://api.ebird.org/v2/data/obs/{region}/recent/notable?back={timeframe}'
     headers = {'X-eBirdApiToken':keys.EBIRD_TOKEN}
 
-    response = requests.request("GET", url, headers=headers)
+    response = requests.request('GET', url, headers=headers)
 
     return response
 
@@ -53,15 +53,27 @@ def tweet(birds, interval=config.DELAY):
         else:
             group_detail = ''
 
+        name = cleanup(bird['comName']).replace(' ', '_').replace('\'', '')
+        about = f'https://allaboutbirds.org/guide/{name}/'
+        b_response = requests.request('GET', url)
+        if not response.ok:
+            about = None
+
         if bird['locationPrivate']:
-            tweet = f'{bird["comName"]}{group_detail} spotted in {bird["county"]} County'
+            map = None
         elif not bird['locationPrivate']:
             map = f'https://www.google.com/maps/search/?api=1&query={bird["lat"]}%2C{bird["lng"]}'
-            tweet = f'{bird["comName"]}{group_detail} spotted at {cleanup(bird["locName"])}, {bird["county"]} County {map}'
+
+        # if about and map:
+            # make a thread with about link first
+        if about:
+            f'{bird["comName"]}{group_detail} spotted at {cleanup(bird["locName"])}, {bird["county"]} County {about}'
+        elif map:
+            f'{bird["comName"]}{group_detail} spotted at {cleanup(bird["locName"])}, {bird["county"]} County {map}'
 
         try:
-            response = client.create_tweet(text=tweet)
-            responses.append(response)
+            t_response = client.create_tweet(text=tweet)
+            responses.append(t_response)
 
         except Exception as e:
             responses.append((e, tweet))
