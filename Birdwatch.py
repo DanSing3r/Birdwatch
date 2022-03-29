@@ -55,7 +55,7 @@ def tweet(birds, interval=config.DELAY):
 
         name = cleanup(bird['comName']).replace(' ', '_').replace('\'', '')
         about = f'https://allaboutbirds.org/guide/{name}/'
-        b_response = requests.request('GET', url)
+        b_response = requests.request('GET', about)
         if not response.ok:
             about = None
 
