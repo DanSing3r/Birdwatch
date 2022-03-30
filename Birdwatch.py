@@ -64,12 +64,10 @@ def tweet(birds, interval=config.DELAY):
         elif not bird['locationPrivate']:
             map = f'https://www.google.com/maps/search/?api=1&query={bird["lat"]}%2C{bird["lng"]}'
 
-        # if about and map:
-            # make a thread with about link first
         if about:
-            f'{bird["comName"]}{group_detail} spotted at {cleanup(bird["locName"])}, {bird["county"]} County {about}'
+            tweet = f'{bird["comName"]}{group_detail} spotted at {cleanup(bird["locName"])}, {bird["county"]} County {about}'
         elif map:
-            f'{bird["comName"]}{group_detail} spotted at {cleanup(bird["locName"])}, {bird["county"]} County {map}'
+            tweet = f'{bird["comName"]}{group_detail} spotted at {cleanup(bird["locName"])}, {bird["county"]} County {map}'
 
         try:
             t_response = client.create_tweet(text=tweet)
@@ -78,6 +76,14 @@ def tweet(birds, interval=config.DELAY):
         except Exception as e:
             responses.append((e, tweet))
             birds.remove(bird)
+
+        if about and map:
+            try:
+                th_response = client.create_tweet(text=map, in_reply_to_tweet_id=t_response.data['id'])
+                responses.append(th_response)
+
+            except Exception as e:
+                responses.append((e, tweet))
 
         time.sleep(interval)
 
