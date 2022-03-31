@@ -63,6 +63,7 @@ def tweet(birds, interval=config.DELAY):
         elif not bird['locationPrivate']:
             map = f'https://www.google.com/maps/search/?api=1&query={bird["lat"]}%2C{bird["lng"]}'
 
+        # Can't include location name here if private
         if about:
             tweet = f'{bird["comName"]}{group_detail} spotted at {cleanup(bird["locName"])}, {bird["county"]} County {about}'
         elif map:
@@ -182,7 +183,7 @@ if __name__ == '__main__':
         tweetable = remove_tweeted(uniques)
         print(f'Tweetable: {len(tweetable)}\n{tweetable}')
 
-        alert(new)
+        alert(tweetable)
 
         tweets += tweetable
 
