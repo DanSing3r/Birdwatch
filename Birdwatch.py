@@ -22,7 +22,6 @@ def get_notable(region, timeframe=config.TIMEFRAME):
 
 def alert(birds):
 
-    private = None
     messages = []
 
     for bird in birds:
@@ -89,13 +88,13 @@ def tweet(birds, interval=config.DELAY):
 
     return birds, responses
 
-def load(response, county):
+def load(response, county, ignore=config.IGNORE):
 
     observations = json.loads(response.content)
     valids = []
 
     for o in observations:
-        if o['obsValid']:
+        if o['obsValid'] and o['speciesCode'] not in ignore:
             valids.append(dict(o, county=county))
 
     return valids
@@ -159,7 +158,7 @@ def cleanup(string):
             string = (string[:start] + string[end+2:])
 
     if '--' in string:
-        string = string.replace('--', ' \u2014 ')
+        string = string.replace('--', ' \u2013 ')
 
     return string
 
@@ -183,7 +182,8 @@ if __name__ == '__main__':
         tweetable = remove_tweeted(uniques)
         print(f'Tweetable: {len(tweetable)}\n{tweetable}')
 
-        alert(tweetable)
+        alert(new)
+
         tweets += tweetable
 
     if tweets:
