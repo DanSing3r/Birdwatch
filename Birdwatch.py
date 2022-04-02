@@ -13,81 +13,13 @@ def timestamp():
 
 def get_notable(region, timeframe=config.TIMEFRAME):
 
-    url = f'https://api.ebird.org/v2/data/obs/{region}/recent/notable?back={timeframe}'
+    url = ('https://api.ebird.org/v2/data/obs/'
+        f'{region}/recent/notable?back={timeframe}')
     headers = {'X-eBirdApiToken':keys.EBIRD_TOKEN}
 
     response = requests.request('GET', url, headers=headers)
 
     return response
-
-def alert(birds):
-
-    messages = []
-
-    for bird in birds:
-        if bird['locationPrivate']:
-            private = 'private'
-        else:
-            private = 'public'
-
-        messages.append(f'{bird["obsDt"]}: {bird["comName"]} at {bird["locName"]} ({private})')
-
-    telegram_send.send(messages=messages)
-
-    return
-
-def tweet(birds, interval=config.DELAY):
-
-    client = tweepy.Client(consumer_key=keys.CONSUMER_KEY, consumer_secret=
-        keys.CONSUMER_SECRET, access_token=keys.ACCESS_TOKEN,
-        access_token_secret=keys.ACCESS_SECRET)
-
-    responses = []
-
-    for bird in birds:
-
-        if bird['howMany'] > 1:
-            group_detail = f' (group of {bird["howMany"]})'
-
-        else:
-            group_detail = ''
-
-        name = cleanup(bird['comName']).replace(' ', '_').replace('\'', '')
-        about = f'https://allaboutbirds.org/guide/{name}/'
-        b_response = requests.request('GET', about)
-        if not response.ok:
-            about = None
-
-        if bird['locationPrivate']:
-            map = None
-        elif not bird['locationPrivate']:
-            map = f'https://www.google.com/maps/search/?api=1&query={bird["lat"]}%2C{bird["lng"]}'
-
-        # Can't include location name here if private
-        if about:
-            tweet = f'{bird["comName"]}{group_detail} spotted at {cleanup(bird["locName"])}, {bird["county"]} County {about}'
-        elif map:
-            tweet = f'{bird["comName"]}{group_detail} spotted at {cleanup(bird["locName"])}, {bird["county"]} County {map}'
-
-        try:
-            t_response = client.create_tweet(text=tweet)
-            responses.append(t_response)
-
-        except Exception as e:
-            responses.append((e, tweet))
-            birds.remove(bird)
-
-        if about and map:
-            try:
-                th_response = client.create_tweet(text=map, in_reply_to_tweet_id=t_response.data['id'])
-                responses.append(th_response)
-
-            except Exception as e:
-                responses.append((e, tweet))
-
-        time.sleep(interval)
-
-    return birds, responses
 
 def load(response, county, ignore=config.IGNORE):
 
@@ -126,6 +58,81 @@ def remove_tweeted(observations, f=config.F_TWEETED):
 
     return observations
 
+def alert(birds):
+
+    messages = []
+
+    for bird in birds:
+        if bird['locationPrivate']:
+            private = 'private'
+        else:
+            private = 'public'
+
+        messages.append(f'{bird["obsDt"]}: {bird["comName"]} at '
+            f'{bird["locName"]} ({private})')
+
+    telegram_send.send(messages=messages)
+
+    return
+
+def tweet(birds, interval=config.DELAY):
+
+    client = tweepy.Client(consumer_key=keys.CONSUMER_KEY, consumer_secret=
+        keys.CONSUMER_SECRET, access_token=keys.ACCESS_TOKEN,
+        access_token_secret=keys.ACCESS_SECRET)
+
+    responses = []
+
+    for bird in birds:
+
+        if bird['howMany'] > 1:
+            group_detail = f' (group of {bird["howMany"]})'
+
+        else:
+            group_detail = ''
+
+        name = cleanup(bird['comName']).replace(' ', '_').replace('\'', '')
+        about = f'https://allaboutbirds.org/guide/{name}/'
+        b_response = requests.request('GET', about)
+        if not response.ok:
+            about = None
+
+        map = ('https://www.google.com/maps/search/?api=1&query=' +
+            bird['lat'] + '%2C' + bird['lng'])
+
+        if not bird['locationPrivate']:
+            location = f'at {cleanup(bird["locName"])}, {bird["county"]} County'
+        elif bird['locationPrivate']:
+            location = f'in {bird["county"]} County'
+
+        if about:
+            tweet = (f'{bird["comName"]}{group_detail} spotted '
+                f'{location} {about}')
+        elif map:
+            tweet = (f'{bird["comName"]}{group_detail} spotted '
+                f'{location} {map}')
+
+        try:
+            t_response = client.create_tweet(text=tweet)
+            responses.append(t_response)
+
+        except Exception as e:
+            responses.append((e, tweet))
+            birds.remove(bird)
+
+        if about and map:
+            try:
+                th_response = client.create_tweet(text=map,
+                    in_reply_to_tweet_id=t_response.data['id'])
+                responses.append(th_response)
+
+            except Exception as e:
+                responses.append((e, tweet))
+
+        time.sleep(interval)
+
+    return birds, responses
+
 def update_tweeted(tweeted, f=config.F_TWEETED):
 
     with open(f, 'r') as fh:
@@ -143,9 +150,6 @@ def update_tweeted(tweeted, f=config.F_TWEETED):
 
     return new
 
-def get_image(bird):
-    pass
-
 def cleanup(string):
 
     # Remove parentheticals, double hyphens
@@ -158,8 +162,22 @@ def cleanup(string):
         else:
             string = (string[:start] + string[end+2:])
 
+    # Replace double hyphen with en dash
     if '--' in string:
         string = string.replace('--', ' \u2013 ')
+
+    # Replace with en dash
+    if '~' in string:
+        string = string.replace('~', ' \u2013 ')
+
+    # Remove lat, lng
+    # words = string.split()
+    # coords = []
+    # for word in words:
+    #     if word[4:7].isdigit():
+    #         coords.append(word)
+    #
+    # string = string.replace(f' {coords[0]}', '').replace(f' {coords[1]}, '')
 
     return string
 
