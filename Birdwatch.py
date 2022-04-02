@@ -98,7 +98,7 @@ def tweet(birds, interval=config.DELAY):
             about = None
 
         map = ('https://www.google.com/maps/search/?api=1&query=' +
-            bird['lat'] + '%2C' + bird['lng'])
+            str(bird['lat']) + '%2C' + str(bird['lng']))
 
         if not bird['locationPrivate']:
             location = f'at {cleanup(bird["locName"])}, {bird["county"]} County'
