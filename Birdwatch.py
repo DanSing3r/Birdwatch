@@ -58,23 +58,6 @@ def remove_tweeted(observations, f=config.F_TWEETED):
 
     return observations
 
-def alert(birds):
-
-    messages = []
-
-    for bird in birds:
-        if bird['locationPrivate']:
-            private = 'private'
-        else:
-            private = 'public'
-
-        messages.append(f'{bird["obsDt"]}: {bird["comName"]} at '
-            f'{bird["locName"]} ({private})')
-
-    telegram_send.send(messages=messages)
-
-    return
-
 def tweet(birds, interval=config.DELAY):
 
     client = tweepy.Client(consumer_key=keys.CONSUMER_KEY, consumer_secret=
@@ -170,15 +153,6 @@ def cleanup(string):
     if '~' in string:
         string = string.replace('~', ' \u2013 ')
 
-    # Remove lat, lng
-    # words = string.split()
-    # coords = []
-    # for word in words:
-    #     if word[4:7].isdigit():
-    #         coords.append(word)
-    #
-    # string = string.replace(f' {coords[0]}', '').replace(f' {coords[1]}, '')
-
     return string
 
 if __name__ == '__main__':
@@ -193,22 +167,16 @@ if __name__ == '__main__':
         print(response.content)
 
         valids = load(response, region[0])
-        print(f'Valids: {len(valids)}\n{valids}')
-
         uniques = dedupe(valids)
-        print(f'Uniques: {len(uniques)}\n{uniques}')
-
         tweetable = remove_tweeted(uniques)
-        print(f'Tweetable: {len(tweetable)}\n{tweetable}')
-
-        alert(tweetable)
+        print(f'{len(valids)} valid, {len(uniques)} unique, '
+            {f'{len(tweetable)} tweetable')
 
         tweets += tweetable
 
     if tweets:
-        print(tweets)
-
+        print(f'Tweetable: {tweets})
         tweeted, responses = tweet(tweets)
-        print(responses)
+        print(f'Responses: {responses})
 
         update_tweeted(tweeted)
