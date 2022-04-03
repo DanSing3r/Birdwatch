@@ -1,7 +1,7 @@
 # Birdwatch
 
 ## Overview
-Birdwatch is a Twitter bot for notable eBird sightings in a given area. eBird, run by the Cornell Lab of Ornithology, is the largest online birding community, with more than 100 million bird sightings logged annually around the world.
+Birdwatch is a Twitter bot for notable [eBird](https://ebird.org) sightings in a given area. eBird, run by the Cornell Lab of Ornithology, is the largest online birding community, with more than 100 million bird sightings logged annually around the world.
 
 ## What makes a sighing notable
 
