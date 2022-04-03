@@ -3,7 +3,6 @@ import keys
 import requests
 import json
 from datetime import datetime, timedelta
-import telegram_send
 import tweepy
 import time
 import os
