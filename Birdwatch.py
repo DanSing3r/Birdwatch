@@ -169,7 +169,7 @@ if __name__ == '__main__':
         uniques = dedupe(valids)
         tweetable = remove_tweeted(uniques)
         print(f'{len(valids)} valid, {len(uniques)} unique, '
-            {f'{len(tweetable)} tweetable')
+            f'{len(tweetable)} tweetable')
 
         tweets += tweetable
 
