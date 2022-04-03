@@ -9,7 +9,7 @@ From eBird:
 > Notable observations can be for locally or nationally rare species or are otherwise unusual, e.g. over-wintering birds in a species which is normally only a summer visitor.
 
 ## Usage
-Set Birdwatch to run at regular intervals using a job scheduler like cron. Birdwatch uses Tweepy and Twitter's v2 API to tweet. It needs Python 3.6 or higher.
+Set Birdwatch to run at regular intervals using a job scheduler like cron. Birdwatch uses Tweepy and Twitter's v2 API to tweet. It needs Python 3.7 or higher.
 
 ## Configuration
 Specify the counties you want to monitor for bird sightings with the `REGIONS`  variable in the config file. For a list of region codes in your area, call eBird's Sub Region List endpoint [like this](https://documenter.getpostman.com/view/664302/S1ENwy59#382da1c8-8bff-4926-936a-a1f8b065e7d5). eBird's hierarchy includes region codes for countries, states (subnational1) and counties (subnational2). Birdwatch can only handle counties.
