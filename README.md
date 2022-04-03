@@ -3,7 +3,7 @@
 ## Overview
 Birdwatch is a Twitter bot for notable [eBird](https://ebird.org) sightings in a given area. eBird, run by the Cornell Lab of Ornithology, is the largest online birding community, with more than 100 million bird sightings logged annually around the world.
 
-## What makes a sighing notable
+## What makes a sighting notable
 
 From eBird:
 > Notable observations can be for locally or nationally rare species or are otherwise unusual, e.g. over-wintering birds in a species which is normally only a summer visitor.
