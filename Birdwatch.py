@@ -174,8 +174,8 @@ if __name__ == '__main__':
         tweets += tweetable
 
     if tweets:
-        print(f'Tweetable: {tweets})
+        print(f'Tweetable: {tweets}')
         tweeted, responses = tweet(tweets)
-        print(f'Responses: {responses})
+        print(f'Responses: {responses}')
 
         update_tweeted(tweeted)
