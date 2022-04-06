@@ -75,8 +75,9 @@ def tweet(birds, interval=config.DELAY):
 
         name = cleanup(bird['comName']).replace(' ', '_').replace('\'', '')
         about = f'https://allaboutbirds.org/guide/{name}/'
+
         b_response = requests.request('GET', about)
-        if not response.ok:
+        if not response.status_code == 200:
             about = None
 
         map = ('https://www.google.com/maps/search/?api=1&query=' +
@@ -175,7 +176,8 @@ if __name__ == '__main__':
 
     if tweets:
         print(f'Tweetable: {tweets}')
-        tweeted, responses = tweet(tweets)
-        print(f'Responses: {responses}')
+        # tweeted, responses = tweet(tweets)
+        # print(f'Responses: {responses}')
 
-        update_tweeted(tweeted)
+        # update_tweeted(tweeted)
+        update_tweeted(tweetable)
