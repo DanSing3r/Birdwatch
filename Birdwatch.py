@@ -174,6 +174,7 @@ if __name__ == '__main__':
         tweets += tweetable
 
         # Logging
+        print()
         if invalids:
             print(f'{len(valids)} valid, {len(uniques)} unique, '
                 f'{len(tweetable)} tweetable / {len(invalids)} invalid '
@@ -190,4 +191,3 @@ if __name__ == '__main__':
         # Logging
         if responses:
             print(f'Twitter responses: {responses}')
-    print()
