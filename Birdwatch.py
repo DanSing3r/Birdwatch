@@ -159,6 +159,7 @@ def cleanup(string):
     return string
 
 if __name__ == '__main__':
+    print()
     script_dir = os.path.dirname(os.path.realpath(__file__))
     os.chdir(script_dir)
 
@@ -174,7 +175,6 @@ if __name__ == '__main__':
         tweets += tweetable
 
         # Logging
-        print()
         if invalids:
             print(f'{len(valids)} valid, {len(uniques)} unique, '
                 f'{len(tweetable)} tweetable / {len(invalids)} invalid '
@@ -189,5 +189,5 @@ if __name__ == '__main__':
         update_tweeted(tweeted)
 
         # Logging
-        if responses:
-            print(f'Twitter responses: {responses}')
+        if tweeted:
+            print(f'Tweeted: {tweeted}')
