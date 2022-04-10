@@ -24,12 +24,15 @@ def load(response, county, ignore=config.IGNORE):
 
     observations = json.loads(response.content)
     valids = []
+    invalids = []
 
     for o in observations:
         if o['obsValid'] and o['speciesCode'] not in ignore:
             valids.append(dict(o, county=county))
+        elif not o['obsValid']:
+            invalids.append(o)
 
-    return valids
+    return valids, invalids
 
 def dedupe(observations):
 
@@ -163,20 +166,27 @@ if __name__ == '__main__':
 
     for region in config.REGIONS:
         response = get_notable(region[1])
-        print(f'{timestamp()}: Got region {region}')
-        print(response.content)
+        print(f'{timestamp()}: Got {region[0]} County')
 
-        valids = load(response, region[0])
+        valids, invalids = load(response, region[0])
         uniques = dedupe(valids)
         tweetable = remove_tweeted(uniques)
-        print(f'{len(valids)} valid, {len(uniques)} unique, '
-            f'{len(tweetable)} tweetable')
-
         tweets += tweetable
 
-    if tweets:
-        print(f'Tweetable: {tweets}')
-        tweeted, responses = tweet(tweets)
-        print(f'Responses: {responses}')
+        # Logging
+        if invalids:
+            print(f'{len(valids)} valid, {len(uniques)} unique, '
+                f'{len(tweetable)} tweetable / {len(invalids)} invalid '
+                f'({invalids[0]["obsDt"]}: {invalids[0]["comName"]} ...)')
+        else:
+            print(f'{len(valids)} valid, {len(uniques)} unique, '
+                f'{len(tweetable)} tweetable / 0 invalid')
 
+    if tweets:
+        tweeted, responses = tweet(tweets)
         update_tweeted(tweeted)
+
+        # Logging
+        if responses:
+            print(f'Twitter responses: {responses}')
+        print()
