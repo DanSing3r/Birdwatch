@@ -190,4 +190,4 @@ if __name__ == '__main__':
         # Logging
         if responses:
             print(f'Twitter responses: {responses}')
-        print()
+    print()
