@@ -177,7 +177,8 @@ if __name__ == '__main__':
         if invalids:
             print(f'{len(valids)} valid, {len(uniques)} unique, '
                 f'{len(tweetable)} tweetable / {len(invalids)} invalid '
-                f'({invalids[0]["obsDt"]}: {invalids[0]["comName"]} ...)')
+                f'({invalids[0]["obsDt"]}: {invalids[0]["comName"]} '
+                f'[{invalids[0]["speciesCode"]}])')
         else:
             print(f'{len(valids)} valid, {len(uniques)} unique, '
                 f'{len(tweetable)} tweetable / 0 invalid')
