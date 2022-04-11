@@ -136,7 +136,7 @@ def update_tweeted(tweeted, f=config.F_TWEETED):
 
     return new
 
-def log(waiting, counties, responses):
+def log(waiting, counties, responses=None):
 
     newest = waiting[0]
     oldest = waiting[0]
@@ -148,9 +148,10 @@ def log(waiting, counties, responses):
 
     print(f'\n{timestamp()}: Got {counties} counties. '
         f'{len(waiting)} sightings waiting')
-    print(f'OLDEST: {oldest["obsDt"]} ({oldest["comName"]}, {oldest["county"]}) ... '
-        f'NEWEST: {newest["obsDt"]} ({newest["comName"]}, {newest["county"]})')
-    print(responses)
+    print(f'OLD: {oldest["obsDt"]} ({oldest["comName"]}, {oldest["county"]})'
+        f'\tNEW: {newest["obsDt"]} ({newest["comName"]}, {newest["county"]})')
+    if responses:
+        print(responses)
 
     return
 
@@ -199,5 +200,7 @@ if __name__ == '__main__':
     if tweets:
         tweeted, responses = tweet(tweets)
         update_tweeted(tweeted)
+        log(waiting, counties, responses)
 
-    log(waiting, counties, responses)
+    else:
+        log(waiting, counties)
