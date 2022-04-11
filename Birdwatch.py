@@ -30,7 +30,7 @@ def load(response, county, ignore=config.IGNORE):
         if o['obsValid'] and o['speciesCode'] not in ignore:
             valids.append(dict(o, county=county))
         elif not o['obsValid']:
-            invalids.append(o)
+            invalids.append(dict(o, county=county))
 
     return valids, invalids
 
@@ -136,6 +136,24 @@ def update_tweeted(tweeted, f=config.F_TWEETED):
 
     return new
 
+def log(waiting, counties, responses):
+
+    newest = waiting[0]
+    oldest = waiting[0]
+    for w in waiting:
+        if w['obsDt'] > newest['obsDt']:
+            newest = w
+        if w['obsDt'] < oldest['obsDt']:
+            oldest = w
+
+    print(f'\n{timestamp()}: Got {counties} counties. '
+        f'{len(waiting)} sightings waiting')
+    print(f'OLDEST: {oldest["obsDt"]} ({oldest["comName"]}, {oldest["county"]}) ... '
+        f'NEWEST: {newest["obsDt"]} ({newest["comName"]}, {newest["county"]})')
+    print(responses)
+
+    return
+
 def cleanup(string):
 
     # Remove parentheticals, double hyphens
@@ -159,35 +177,27 @@ def cleanup(string):
     return string
 
 if __name__ == '__main__':
-    print()
     script_dir = os.path.dirname(os.path.realpath(__file__))
     os.chdir(script_dir)
 
     tweets = []
+    waiting = []
+    counties = 0
 
     for region in config.REGIONS:
         response = get_notable(region[1])
-        print(f'{timestamp()}: Got {region[0]} County')
+        if response.ok:
+            counties += 1
 
         valids, invalids = load(response, region[0])
         uniques = dedupe(valids)
         tweetable = remove_tweeted(uniques)
         tweets += tweetable
 
-        # Logging
-        if invalids:
-            print(f'{len(valids)} valid, {len(uniques)} unique, '
-                f'{len(tweetable)} tweetable / {len(invalids)} invalid '
-                f'({invalids[0]["obsDt"]}: {invalids[0]["comName"]} '
-                f'[{invalids[0]["speciesCode"]}])')
-        else:
-            print(f'{len(valids)} valid, {len(uniques)} unique, '
-                f'{len(tweetable)} tweetable / 0 invalid')
+        waiting += invalids
 
     if tweets:
         tweeted, responses = tweet(tweets)
         update_tweeted(tweeted)
 
-        # Logging
-        if tweeted:
-            print(f'Tweeted: {tweeted}')
+    log(waiting, counties, responses)
