@@ -29,7 +29,8 @@ def load(response, county, ignore=config.IGNORE):
     for o in observations:
         if o['obsValid'] and o['speciesCode'] not in ignore:
             valids.append(dict(o, county=county))
-        elif not o['obsValid']:
+        elif (not o['obsValid'] and not o['obsReviewed'] and
+            o['speciesCode'] not in ignore):
             invalids.append(dict(o, county=county))
 
     return valids, invalids
