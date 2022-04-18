@@ -81,7 +81,7 @@ def tweet(birds, interval=config.DELAY):
         about = f'https://allaboutbirds.org/guide/{name}/'
 
         b_response = requests.request('GET', about)
-        if not b_response.status_code == 200:
+        if b_response.status_code != 200:
             about = None
 
         map = ('https://www.google.com/maps/search/?api=1&query=' +
