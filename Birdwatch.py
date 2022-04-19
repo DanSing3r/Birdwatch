@@ -81,6 +81,8 @@ def tweet(birds, interval=config.DELAY):
         about = f'https://allaboutbirds.org/guide/{name}/'
 
         b_response = requests.request('GET', about)
+        print(b_response.status_code)
+        print(type(b_response.status_code))
         if b_response.status_code != 200:
             about = None
 
