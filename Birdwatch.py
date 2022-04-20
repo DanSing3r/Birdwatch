@@ -16,7 +16,7 @@ def get_notable(region, timeframe=config.TIMEFRAME):
         f'{region}/recent/notable?back={timeframe}')
     headers = {'X-eBirdApiToken':keys.EBIRD_TOKEN}
 
-    response = requests.request('GET', url, headers=headers)
+    response = requests.get(url, headers=headers)
 
     return response
 
@@ -80,7 +80,7 @@ def tweet(birds, interval=config.DELAY):
         name = cleanup(bird['comName']).replace(' ', '_').replace('\'', '')
         about = f'https://allaboutbirds.org/guide/{name}/'
 
-        b_response = requests.request('GET', about)
+        b_response = requests.get(about)
         print(b_response.status_code)
         print(type(b_response.status_code))
         if b_response.status_code != 200:
