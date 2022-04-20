@@ -77,10 +77,16 @@ def tweet(birds, interval=config.DELAY):
         else:
             group_detail = ''
 
+        print(f'name = {bird["comName"]}')
         name = cleanup(bird['comName']).replace(' ', '_').replace('\'', '')
+        print(f'cleaned = {name}')
         about = f'https://allaboutbirds.org/guide/{name}/'
+        print(f'link = {about}')
 
-        b_response = requests.get(about)
+        headers = {'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:99.0) '
+            'Gecko/20100101 Firefox/99.0'}
+        b_response = requests.get(about, headers=headers)
         print(b_response.status_code)
         print(type(b_response.status_code))
         if b_response.status_code != 200:
