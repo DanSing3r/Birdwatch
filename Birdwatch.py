@@ -107,14 +107,14 @@ def tweet(birds, interval=config.DELAY):
 
         try:
             t_response = client.create_tweet(text=tweet)
-            responses.append(t_response)
+            responses.append((bird['speciesCode'], t_response))
             if about and map:
                 th_response = client.create_tweet(text=map,
                     in_reply_to_tweet_id=t_response.data['id'])
                 responses.append(th_response)
 
         except Exception as e:
-            responses.append((e, tweet))
+            responses.append((bird['speciesCode'], e, tweet))
             birds.remove(bird)
 
         time.sleep(interval)
