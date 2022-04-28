@@ -87,9 +87,7 @@ def tweet(birds, interval=config.DELAY):
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:99.0) '
             'Gecko/20100101 Firefox/99.0'}
         b_response = requests.get(about, headers=headers)
-        print(b_response.status_code)
-        print(type(b_response.status_code))
-        if b_response.status_code != 200:
+        if not b_response.ok:
             about = None
 
         map = ('https://www.google.com/maps/search/?api=1&query=' +
@@ -110,19 +108,14 @@ def tweet(birds, interval=config.DELAY):
         try:
             t_response = client.create_tweet(text=tweet)
             responses.append(t_response)
-
-        except Exception as e:
-            responses.append((e, tweet))
-            birds.remove(bird)
-
-        if about and map:
-            try:
+            if about and map:
                 th_response = client.create_tweet(text=map,
                     in_reply_to_tweet_id=t_response.data['id'])
                 responses.append(th_response)
 
-            except Exception as e:
-                responses.append((e, tweet))
+        except Exception as e:
+            responses.append((e, tweet))
+            birds.remove(bird)
 
         time.sleep(interval)
 
